@@ -53,7 +53,7 @@
   .bar{height:14px;background:#ffd9ec;border-radius:999px;overflow:hidden;margin:14px auto;max-width:600px}
   .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--pink));transition:width .3s linear}
   .qr{background:#fff;padding:14px;border-radius:20px;display:inline-block;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-  .qr img{display:block;width:300px;height:300px}
+  .qr img{display:block;width:300px;height:300px;image-rendering:pixelated;image-rendering:crisp-edges}
   .url{font-family:monospace;background:#fff;border:1px dashed var(--pink);border-radius:10px;padding:8px 12px;display:inline-block;margin-top:10px;word-break:break-all}
   .players{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
   .chip{background:#fff;border:2px solid var(--pink2);color:var(--deep);font-weight:bold;border-radius:999px;padding:8px 16px;font-size:clamp(14px,2vw,20px)}
@@ -79,6 +79,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
 const firebaseConfig = {"apiKey": "AIzaSyDxIO9CSOm46kN9IKQpmkOIFQGUJ4trNpM", "authDomain": "iz-s-bachelorette-party-game.firebaseapp.com", "databaseURL": "https://iz-s-bachelorette-party-game-default-rtdb.firebaseio.com", "projectId": "iz-s-bachelorette-party-game", "storageBucket": "iz-s-bachelorette-party-game.firebasestorage.app", "messagingSenderId": "74582279307", "appId": "1:74582279307:web:4bc2476f9171a69076408e", "measurementId": "G-5Z053SJLRG"};
 const PROMPTS = ["Be a summer sales bro", "Text you, “You up?” at 2am", "Have a foot fetish", "Be marriage material", "Have mommy issues", "Cry during sex", "“Showering? Without me? :(”", "Have a podcast", "Propose after 2 weeks of dating", "Tell you they’re not ready for a relationship and then get married to someone else 3 months later", "Be into cougars", "Be a hopeless romantic", "Check their phone during sex", "Ghost you after dating for 2 months", "Still use Snapchat", "Ask you to split the bill"];
@@ -90,6 +91,16 @@ const app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
 const role = params.get('host')!=null ? 'host' : (params.get('play')!=null ? 'play' : 'land');
 const playerUrl = location.origin + location.pathname + '?play';
+
+function qrSrc(text){
+  try{
+    if(typeof qrcode==='function'){
+      const q=qrcode(0,'M'); q.addData(text); q.make();
+      return q.createDataURL(8,16);
+    }
+  }catch(e){}
+  return 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=6&data='+encodeURIComponent(text);
+}
 
 function deviceId(){
   try{ let id=localStorage.getItem('mlt_id'); if(!id){id='d'+Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('mlt_id',id);} return id; }
@@ -170,11 +181,13 @@ function renderHost(){
   }
 
   function drawLobby(players){
+    const fileWarn = (location.protocol==='file:') ? `<div class="setup"><b>⚠️ Open the hosted link, not this file.</b> You're viewing this straight from your computer, so the QR points to a file phones can't open. Put index.html online (GitHub Pages) and open that https:// link here instead.</div>` : '';
     app.innerHTML = `
+      ${fileWarn}
       <h1>Most Likely To 💍</h1>
       <p class="sub">Scan to join — then look at this screen!</p>
       <div style="display:flex;gap:30px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:10px">
-        <div class="qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=6&data=${encodeURIComponent(playerUrl)}" alt="QR"></div>
+        <div class="qr"><img src="${qrSrc(playerUrl)}" alt="QR"></div>
         <div>
           <p class="big">${players.length} joined</p>
           <div class="players">${players.map(p=>`<span class="chip">${esc(p.name||'?')}</span>`).join('')||'<span class="small">waiting for players…</span>'}</div>
