@@ -42,6 +42,8 @@
   .prompt .ml{display:block;font-size:.45em;color:var(--pink);letter-spacing:3px;text-transform:uppercase}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
   @media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr);gap:18px}}
+  .grid2{grid-template-columns:repeat(2,1fr)!important;gap:16px;max-width:560px;margin-left:auto;margin-right:auto}
+  .grid2 .nm{display:none}
   .face{position:relative;border:4px solid transparent;border-radius:20px;overflow:hidden;
     background:#fff;cursor:pointer;transition:transform .08s, border-color .1s;aspect-ratio:1}
   .face img{width:100%;height:100%;object-fit:cover;display:block}
@@ -313,7 +315,7 @@ function renderPlay(){
     app.innerHTML = `
       <p class="sub">Prompt ${q+1} of ${PROMPTS.length}</p>
       <div class="prompt" style="font-size:clamp(20px,6vw,30px)"><span class="ml">Most likely to…</span>${esc(PROMPTS[q])}</div>
-      <div class="grid">
+      <div class="grid grid2">
         ${NAMES.map(n=>`<div class="face ${sel===n?'sel':''}" onclick="_vote('${n.replace(/'/g,"\\'")}')"><img src="${FACES[n]}"><div class="nm">${esc(n)}</div></div>`).join('')}
       </div>
       <p class="note" id="pmsg">${sel?('✅ You picked '+esc(sel)+' — tap to change. Waiting for everyone…'):'👆 Tap your pick!'}</p>`;
